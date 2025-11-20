@@ -264,6 +264,7 @@ export function TranslationProvider({ children }: { children: React.ReactNode })
         selectedModel: state.selectedModel,
         excludedStrings: state.excludedStrings,
         selectedLanguages: state.selectedLanguages,
+        appContext: state.appContext,
       };
 
       if (!currentState.xcstringsData || !currentState.apiKey) return;
@@ -400,7 +401,7 @@ export function TranslationProvider({ children }: { children: React.ReactNode })
         }));
       }
     },
-    [state.xcstringsData, state.apiKey, state.selectedModel, state.excludedStrings, state.selectedLanguages]
+    [state.xcstringsData, state.apiKey, state.selectedModel, state.excludedStrings, state.selectedLanguages, state.appContext]
   );
 
   const translateMultipleLanguages = useCallback(
