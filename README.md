@@ -1,13 +1,19 @@
-# XCStrings Translator
-
-A powerful web application for translating iOS XCStrings files to multiple languages using OpenAI's API. Built with Next.js 16, React 19, and Shadcn UI.
+<div align="center">
+  <img src="public/label-beemur.png" alt="Beemur Apps" width="200"/>
+  
+  # Beemur IOS Auto Translator
+  
+  A powerful web application for translating iOS XCStrings files to multiple languages using OpenAI's API. Built with Next.js 16, React 19, and Shadcn UI.
+  
+  **Created by [Beemur Apps](https://beemur.com)**
+</div>
 
 ## Features
 
 - 🌍 **Multi-Language Support**: Translate to 35+ languages including major world languages and regional variants
 - 🤖 **AI-Powered**: Uses OpenAI's latest models (GPT-4o, GPT-4o Mini, O1, etc.) for accurate translations
 - 🔒 **Privacy-First**: All data stays local in your browser; API keys are stored securely
-- ⚡ **Blazing Fast**: All strings batched in a single API call per language (not one-by-one!)
+- ⚡ **Blazing Fast**: Automatic Batching with, one click and translate all
 - 🎯 **Batch Translation**: Translate multiple languages at once or individually
 - 🎯 **Selective Translation**: Choose which strings to translate and which to keep (e.g., brand names)
 - 📊 **Progress Tracking**: Real-time progress bars for each language
@@ -37,6 +43,7 @@ A powerful web application for translating iOS XCStrings files to multiple langu
   - **GPT-4 Turbo**: Previous generation flagship
   - **GPT-3.5 Turbo**: Fast and economical
   - **O1 Preview/Mini**: Advanced reasoning models
+  - and many more, it will auto fetch list from your api
 - Test your API key before proceeding
 
 ### Step 4: Translate
@@ -62,7 +69,7 @@ A powerful web application for translating iOS XCStrings files to multiple langu
 - Supports string variations (plurals, device-specific)
 
 ### Translation Quality & Performance
-- **Batch Translation**: All strings for a language are translated in a single API call (much faster!)
+- **Batch Translation**: All strings for a language are trasnlated under single conetxt multiple strings batch format
 - Includes string comments as context for better translations
 - AI sees all strings together, providing better consistency
 - Preserves all placeholders in the correct positions
@@ -180,6 +187,15 @@ This is an open-source project. Contributions are welcome!
 
 MIT License - feel free to use this in your projects!
 
+## About Beemur Apps
+
+This tool is created and maintained by **[Beemur Apps](https://beemur.com)**, a software development company focused on building productivity tools for humans. We specialize in creating efficient, user-friendly applications that solve real-world problems.
+
+
+### Connect with Us
+- 🌐 Website: [beemur.com](https://beemur.com)
+- 📧 Contact us for custom development solutions
+
 ## Acknowledgments
 
 - Built with [Next.js](https://nextjs.org/)
@@ -188,4 +204,4 @@ MIT License - feel free to use this in your projects!
 
 ---
 
-**Made with ❤️ for iOS developers**
+**Made with ❤️ for developers by Beemur Apps**
