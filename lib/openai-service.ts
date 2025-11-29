@@ -228,9 +228,7 @@ export async function translateLanguageBatch(
         const prompt = `Translate the following app interface strings from English to ${targetLanguageName} (language code: ${targetLanguage}).${appContextInfo}
 
 TRANSLATION STYLE:
-- Use CASUAL, EVERYDAY language that regular people use, it should not be offensive or disrespectful.
-- Avoid overly formal or technical language
-- Keep it friendly and conversational - like you're talking to a friend
+- Avoid overly formal but easy to understand language
 - Use common words and phrases people actually say
 - Match the natural speaking style of native speakers
 
@@ -270,6 +268,9 @@ ${JSON.stringify(stringsToTranslate, null, 2)}`;
           additionalProperties: false
         };
 
+        // GPT-5 series models don't support temperature parameter
+        const isGPT5Series = model.startsWith('gpt-5');
+        
         const response = await openai.chat.completions.create({
           model,
           messages: [
@@ -291,6 +292,7 @@ ${JSON.stringify(stringsToTranslate, null, 2)}`;
             },
           },
           max_completion_tokens: 8000,
+          ...(isGPT5Series ? {} : { temperature: 0.3 }),
         });
 
         const responseContent = response.choices[0]?.message?.content?.trim() || '';
@@ -457,6 +459,9 @@ Source text: "${request.sourceText}"${contextInfo}${placeholderInfo}
 
 Provide ONLY the translated text without any explanation, quotes, or additional commentary. The translation should be natural and appropriate for a mobile app interface.`;
 
+    // GPT-5 series models don't support temperature parameter
+    const isGPT5Series = model.startsWith('gpt-5');
+    
     const response = await openai.chat.completions.create({
       model,
       messages: [
@@ -469,8 +474,8 @@ Provide ONLY the translated text without any explanation, quotes, or additional 
           content: prompt,
         },
       ],
-      temperature: 0.3, // Lower temperature for more consistent translations
       max_completion_tokens: 500,
+      ...(isGPT5Series ? {} : { temperature: 0.3 }), // Lower temperature for more consistent translations (not available in GPT-5 series)
     });
 
     const translatedText = response.choices[0]?.message?.content?.trim() || '';

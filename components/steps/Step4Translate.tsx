@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { Languages, Play, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
 
@@ -24,6 +25,9 @@ export function Step4Translate() {
   } = useTranslation();
 
   const [selectedForBatch, setSelectedForBatch] = useState<Set<string>>(new Set());
+  const [showReTranslateDialog, setShowReTranslateDialog] = useState(false);
+  const [reTranslateMode, setReTranslateMode] = useState<'single' | 'batch' | null>(null);
+  const [reTranslateLanguage, setReTranslateLanguage] = useState<string | null>(null);
 
   const targetLanguages = selectedLanguages.filter((lang) => lang !== sourceLanguage);
 
@@ -42,6 +46,23 @@ export function Step4Translate() {
     if (languagesToTranslate.length > 0) {
       await translateMultipleLanguages(languagesToTranslate, forceRefresh);
     }
+  };
+
+  const handleReTranslateClick = (mode: 'single' | 'batch', languageCode?: string) => {
+    setReTranslateMode(mode);
+    setReTranslateLanguage(languageCode || null);
+    setShowReTranslateDialog(true);
+  };
+
+  const confirmReTranslate = async () => {
+    if (reTranslateMode === 'batch') {
+      await handleTranslateSelected(true);
+    } else if (reTranslateMode === 'single' && reTranslateLanguage) {
+      await translateLanguage(reTranslateLanguage, true);
+    }
+    setShowReTranslateDialog(false);
+    setReTranslateMode(null);
+    setReTranslateLanguage(null);
   };
 
   const allTranslated = targetLanguages.every((lang) => {
@@ -96,12 +117,12 @@ export function Step4Translate() {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => handleTranslateSelected(true)}
+                  onClick={() => handleReTranslateClick('batch')}
                   disabled={selectedForBatch.size === 0 || isTranslating}
                   className="flex-1"
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  Refresh Selected
+                  Re Translate Selected
                 </Button>
               </div>
 
@@ -160,11 +181,11 @@ export function Step4Translate() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => translateLanguage(lang, true)}
+                            onClick={() => handleReTranslateClick('single', lang)}
                             disabled={isTranslating}
                           >
                             <RefreshCw className="h-3 w-3 mr-2" />
-                            Refresh
+                            Re Translate
                           </Button>
                         </div>
                       </div>
@@ -207,6 +228,23 @@ export function Step4Translate() {
           Next
         </Button>
       </div>
+
+      <AlertDialog open={showReTranslateDialog} onOpenChange={setShowReTranslateDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Re-Translate Confirmation</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to re-translate? This will replace all existing translations for the selected language(s).
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmReTranslate}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
