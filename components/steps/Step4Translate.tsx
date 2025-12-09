@@ -75,6 +75,18 @@ export function Step4Translate() {
     return progress && progress.translatedStrings > 0;
   });
 
+  const handleSelectAll = () => {
+    if (selectedForBatch.size === targetLanguages.length) {
+      // If all are selected, deselect all
+      setSelectedForBatch(new Set());
+    } else {
+      // Select all
+      setSelectedForBatch(new Set(targetLanguages));
+    }
+  };
+
+  const allSelected = selectedForBatch.size === targetLanguages.length && targetLanguages.length > 0;
+
   return (
     <div className="space-y-6">
       <Card>
@@ -97,6 +109,21 @@ export function Step4Translate() {
             </Alert>
           ) : (
             <>
+              <div className="flex items-center gap-3 mb-4 p-3 bg-muted/50 rounded-lg">
+                <Checkbox
+                  id="select-all"
+                  checked={allSelected}
+                  onCheckedChange={handleSelectAll}
+                  disabled={isTranslating}
+                />
+                <label
+                  htmlFor="select-all"
+                  className="text-sm font-medium leading-none cursor-pointer"
+                >
+                  Select All ({selectedForBatch.size}/{targetLanguages.length})
+                </label>
+              </div>
+
               <div className="flex gap-2 mb-4">
                 <Button
                   onClick={() => handleTranslateSelected(false)}

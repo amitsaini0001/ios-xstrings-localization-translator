@@ -214,6 +214,7 @@ export async function translateLanguageBatch(
           
           return {
             index: index + 1,
+            key: req.stringKey,
             text: req.sourceText,
             additionalInfo: `${contextInfo}${placeholderInfo}`.trim() || undefined,
           };
@@ -237,6 +238,7 @@ CRITICAL TECHNICAL RULES:
 2. Keep placeholders in the SAME positions and order
 3. Preserve ALL escape sequences (\\n, \\t, \\r) EXACTLY as they appear in the source text
 4. Maintain the same number of translations as input strings in the same order
+5. Use the 'key' field to understand the context and purpose of each string - this helps ensure translations are semantically appropriate and consistent
 
 Strings to translate:
 ${JSON.stringify(stringsToTranslate, null, 2)}`;
@@ -254,12 +256,16 @@ ${JSON.stringify(stringsToTranslate, null, 2)}`;
                     type: "number",
                     description: "The index of the string being translated (matches input index)"
                   },
+                  key: {
+                    type: "string",
+                    description: "The string key from the input (helps maintain context)"
+                  },
                   translated: {
                     type: "string",
                     description: "The translated text with all placeholders and escape sequences preserved"
                   }
                 },
-                required: ["index", "translated"],
+                required: ["index", "key", "translated"],
                 additionalProperties: false
               }
             }
@@ -276,7 +282,7 @@ ${JSON.stringify(stringsToTranslate, null, 2)}`;
           messages: [
             {
               role: 'system',
-              content: 'You are a native-speaking translator specializing in mobile app localization. You translate using CASUAL, NATURAL everyday language - avoiding formal or overly professional phrasing. You MUST preserve ALL technical elements like placeholders (e.g., %@, %1$@, %lld) and escape sequences (e.g., \\n, \\t) EXACTLY as they appear in the source text.',
+              content: 'You are a native-speaking translator specializing in mobile app localization. You translate using CASUAL, NATURAL everyday language - avoiding formal or overly professional phrasing. You MUST preserve ALL technical elements like placeholders (e.g., %@, %1$@, %lld) and escape sequences (e.g., \\n, \\t) EXACTLY as they appear in the source text. Pay close attention to the string KEY - it provides crucial context about the purpose and meaning of each string to ensure your translations are semantically accurate and consistent.',
             },
             {
               role: 'user',
@@ -316,7 +322,7 @@ ${JSON.stringify(stringsToTranslate, null, 2)}`;
         }
 
         // Parse the structured JSON response
-        let parsedResponse: { translations: Array<{ index: number; translated: string }> };
+        let parsedResponse: { translations: Array<{ index: number; key: string; translated: string }> };
         try {
           parsedResponse = JSON.parse(responseContent);
         } catch {
@@ -362,6 +368,11 @@ ${JSON.stringify(stringsToTranslate, null, 2)}`;
           const translationObj = parsedResponse.translations.find(t => t.index === i + 1);
 
           if (translationObj?.translated !== undefined) {
+            // Verify that the key matches to prevent drift
+            if (translationObj.key !== request.stringKey) {
+              console.warn(`Key mismatch: expected '${request.stringKey}' but got '${translationObj.key}'`);
+            }
+            
             batchResults.push({
               stringKey: request.stringKey,
               targetLanguage: request.targetLanguage,
@@ -455,7 +466,10 @@ export async function translateString(
 
     const prompt = `Translate the following iOS app string from English to ${request.targetLanguageName} (language code: ${request.targetLanguage}).
 
+String Key: "${request.stringKey}"
 Source text: "${request.sourceText}"${contextInfo}${placeholderInfo}
+
+The string key indicates the purpose and context of this text. Use it to ensure your translation is semantically appropriate.
 
 Provide ONLY the translated text without any explanation, quotes, or additional commentary. The translation should be natural and appropriate for a mobile app interface.`;
 
@@ -467,7 +481,7 @@ Provide ONLY the translated text without any explanation, quotes, or additional 
       messages: [
         {
           role: 'system',
-          content: 'You are a professional translator specializing in iOS app localization. You preserve technical elements like placeholders and formatting while providing natural, culturally appropriate translations.',
+          content: 'You are a professional translator specializing in iOS app localization. You preserve technical elements like placeholders and formatting while providing natural, culturally appropriate translations. Pay attention to the string key to understand the context and ensure your translation is semantically accurate.',
         },
         {
           role: 'user',
